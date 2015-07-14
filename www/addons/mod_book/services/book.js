@@ -322,5 +322,24 @@ angular.module('mm.addons.mod_book')
         });
     };
 
+    /**
+     * Report a book and chapter as being viewed.
+     *
+     * @module mm.addons.mod_book
+     * @ngdoc method
+     * @name $mmaModBook#logView
+     * @param {Number} instanceId The instance ID of the module.
+     * @param {Number} chapterId The chapter ID of the book.
+     * @return {Void}
+     */
+    self.logView = function(instanceId, chapterId) {
+        if (instanceId) {
+            $mmSite.write('mod_book_view_book', {
+                bookid: instanceId,
+                chapterid: chapterId
+            });
+        }
+    };
+
     return self;
 });

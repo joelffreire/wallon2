@@ -47,6 +47,7 @@ angular.module('mm.addons.mod_book')
         }).finally(function() {
             return $mmaModBook.getChapterContent(module.contents, firstChapter, module.id).then(function(content) {
                 $scope.content = content;
+                $mmaModBook.logView(module.instance, 0);
             }).catch(function() {
                 $mmUtil.showErrorModal('mma.mod_book.errorchapter');
             }).finally(function() {
@@ -70,6 +71,7 @@ angular.module('mm.addons.mod_book')
             $scope.content = content;
             $scope.previousChapter = $mmaModBook.getPreviousChapter(chapters, chapterId);
             $scope.nextChapter = $mmaModBook.getNextChapter(chapters, chapterId);
+            $mmaModBook.logView(module.instance, chapterId);
         }).catch(function() {
             $mmUtil.showErrorModal('mma.mod_book.errorchapter', true);
         }).finally(function() {
@@ -86,11 +88,5 @@ angular.module('mm.addons.mod_book')
     });
 
 
-    fetchContent().then(function() {
-        if (module.instance) {
-            $mmSite.write('mod_book_view_book', {
-                urlid: module.instance
-            });
-        }
-    });
+    fetchContent();
 });

@@ -61,6 +61,8 @@ angular.module('mm.core')
                 basePath = cordova.file.externalApplicationStorageDirectory;
             } else if (ionic.Platform.isIOS()) {
                 basePath = cordova.file.documentsDirectory;
+            } else if (self.isAvailable) {
+                basePath = '/';
             } else {
                 $log.error('Error getting device OS.');
                 deferred.reject();
@@ -81,7 +83,50 @@ angular.module('mm.core')
      * @return {Boolean} True when cordova is initialised.
      */
     self.isAvailable = function() {
-        return (typeof cordova !== 'undefined' && typeof cordova.file !== 'undefined');
+        var cordova = (typeof cordova !== 'undefined' && typeof cordova.file !== 'undefined');
+        var localFS = window.requestFileSystem || window.webkitRequestFileSystem;
+
+        if (!cordova && localFS) {
+            window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+
+            // FileTransfer API.
+            window.FileTransfer = function() {};
+
+            window.LocalFileSystem = {
+                PERSISTENT: 1
+            };
+
+            window.FileTransfer.prototype.download = function(url, filePath, successCallback, errorCallback, options, debug) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.responseType = 'blob';
+
+                filePath = filePath.replace("filesystem:file:///persistent/", "");
+
+                xhr.onload = function(e) {
+                    window.requestFileSystem(LocalFileSystem.PERSISTENT, 1048576, function(fileSystemRoot) {
+                        fileSystemRoot.root.getFile(filePath, {create: true}, function(fileEntry) {
+                            fileEntry.createWriter(function(writer) {
+                                writer.onerror = function(e) {
+                                    errorCallback();
+                                };
+                                writer.write(xhr.response);
+                                successCallback(fileEntry);
+                            }, function(e) {
+                                console.log(e);
+                            });
+                        }, function(e) {
+                            console.log(filePath);
+                            console.log(e);
+                        });
+                    });
+                };
+
+                xhr.send();
+            };
+        }
+
+        return cordova || localFS;
     };
 
     /**
@@ -142,6 +187,9 @@ angular.module('mm.core')
         return self.init().then(function() {
             base = base || basePath;
 
+            path = path.replace("filesystem:file:///persistent/", "");
+            path = path.replace('file:///', '');
+
             if (path.indexOf('/') == -1) {
                 if (isDirectory) {
                     $log.debug('Create dir ' + path + ' in ' + base);
@@ -162,6 +210,7 @@ angular.module('mm.core')
                     return create(isDirectory, restOfPath, failIfExists, newDirEntry.toURL());
                 }, function(error) {
                     $log.error('Error creating directory ' + firstDir + ' in ' + base);
+                    console.log(error);
                     return $q.reject(error);
                 });
             }

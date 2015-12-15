@@ -1,7 +1,7 @@
 {
     "about": "Om",
-    "appname": "Moodle Mobile {{version}}",
     "appready": "Appen är redo",
+    "appname": "Learn Moodle {{version}}",
     "cacheexpirationtime": "Cache utgångs tid (millisekunder)",
     "cordovadevicemodel": "",
     "cordovadeviceosversion": "",

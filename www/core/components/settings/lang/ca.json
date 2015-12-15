@@ -1,7 +1,7 @@
 {
     "about": "Quant a",
-    "appname": "Moodle Mobile {{version}}",
     "appready": "App preparada",
+    "appname": "Learn Moodle {{version}}",
     "cacheexpirationtime": "Temps de venciment de memòria cau (milisegons)",
     "cordovadevicemodel": "Model del dispositiu Cordova",
     "cordovadeviceosversion": "Versió d'OS del dispositiu Cordova",

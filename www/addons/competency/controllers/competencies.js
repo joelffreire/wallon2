@@ -21,14 +21,13 @@ angular.module('mm.addons.competency')
  * @ngdoc controller
  * @name mmaCompetenciesListCtrl
  */
-.controller('mmaCompetenciesListCtrl', function($scope, $log, $mmaCompetency, $mmUtil, $stateParams, $state, $ionicPlatform, $q,
-    $translate) {
-
-    $log = $log.getInstance('mmaCompetenciesListCtrl');
+.controller('mmaCompetenciesListCtrl', function($scope, $mmaCompetency, $mmUtil, $stateParams, $state, $ionicPlatform, $q,
+    $translate, $mmSite, $mmUser) {
 
     var planId = parseInt($stateParams.pid) || false,
         courseId = parseInt($stateParams.cid) || false,
-        competencyId = parseInt($stateParams.compid);
+        competencyId = parseInt($stateParams.compid),
+        userId = parseInt($stateParams.uid) || false;
 
     function fetchCompetencies(refresh) {
         var promise;
@@ -50,10 +49,38 @@ angular.module('mm.addons.competency')
                 $scope.title = response.plan.name;
                 $scope.id = response.plan.id;
                 $scope.idname = 'planid';
+
+                if (response.plan.userid != $mmSite.getUserId()) {
+                    $scope.userId = response.plan.userid;
+
+                    // Get the user profile to retrieve the user image.
+                    $mmUser.getProfile(response.plan.userid, undefined, true).then(function(user) {
+                        if (typeof $scope.profileLink == 'undefined') {
+                            $scope.profileLink = user.profileimageurl || true;
+                        }
+                    }).catch(function() {
+                        // Couldn't retrieve the image, use a default icon.
+                        $scope.profileLink = true;
+                    });
+                }
             } else {
                 $scope.title = $translate.instant('mma.competency.coursecompetencies');
                 $scope.id = response.courseid;
                 $scope.idname = 'courseid';
+
+                if (userId && userId != $mmSite.getUserId()) {
+                    $scope.userId = userId;
+
+                    // Get the user profile to retrieve the user image.
+                    $mmUser.getProfile(userId, undefined, true).then(function(user) {
+                        if (typeof $scope.profileLink == 'undefined') {
+                            $scope.profileLink = user.profileimageurl || true;
+                        }
+                    }).catch(function() {
+                        // Couldn't retrieve the image, use a default icon.
+                        $scope.profileLink = true;
+                    });
+                }
             }
 
             $scope.competencies = response.competencies;
@@ -77,7 +104,7 @@ angular.module('mm.addons.competency')
             // Show split view on tablet.
             $state.go('site.competency', {planid: planId, competencyid: competencyId});
         } else {
-            $state.go('site.competency', {courseid: courseId, competencyid: competencyId});
+            $state.go('site.competency', {courseid: courseId, competencyid: competencyId, userid: userId});
         }
     };
 

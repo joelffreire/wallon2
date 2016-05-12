@@ -21,11 +21,9 @@ angular.module('mm.addons.competency')
  * @ngdoc controller
  * @name mmaLearningPlanCtrl
  */
-.controller('mmaLearningPlanCtrl', function($scope, $log, $stateParams, $mmaCompetency, $mmUtil, $translate,
+.controller('mmaLearningPlanCtrl', function($scope, $stateParams, $mmaCompetency, $mmUtil, $translate,
     mmaCompetencyStatusDraft, mmaCompetencyStatusActive, mmaCompetencyStatusComplete, mmaCompetencyStatusWaitingForReview,
-    mmaCompetencyStatusInReview, $state, $ionicPlatform, $q) {
-
-    $log = $log.getInstance('mmaLearningPlanCtrl');
+    mmaCompetencyStatusInReview, $state, $ionicPlatform, $q, $mmSite, $mmUser) {
 
     var planId = parseInt($stateParams.id);
 
@@ -37,6 +35,20 @@ angular.module('mm.addons.competency')
             statusName = getStatusName(plan.plan.status);
             if (statusName) {
                 plan.plan.statusname = statusName;
+            }
+
+            if (plan.plan.userid != $mmSite.getUserId()) {
+                $scope.userId = plan.plan.userid;
+
+                // Get the user profile to retrieve the user image.
+                $mmUser.getProfile(plan.plan.userid, undefined, true).then(function(user) {
+                    if (typeof $scope.profileLink == 'undefined') {
+                        $scope.profileLink = user.profileimageurl || true;
+                    }
+                }).catch(function() {
+                    // Couldn't retrieve the image, use a default icon.
+                    $scope.profileLink = true;
+                });
             }
 
             $scope.plan = plan;
@@ -99,8 +111,6 @@ angular.module('mm.addons.competency')
 
     // Get event.
     fetchLearningPlan().finally(function() {
-        //$mmaCompetency.logPlanView(planId);
-    }).finally(function() {
         $scope.planLoaded = true;
     });
 

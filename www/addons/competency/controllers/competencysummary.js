@@ -21,9 +21,7 @@ angular.module('mm.addons.competency')
  * @ngdoc controller
  * @name Competency
  */
-.controller('mmaCompetencySummaryCtrl', function($scope, $log, $stateParams, $mmaCompetency, $mmUtil, $q) {
-
-    $log = $log.getInstance('mmaCompetencySummaryCtrl');
+.controller('mmaCompetencySummaryCtrl', function($scope, $stateParams, $mmaCompetency, $mmUtil, $q) {
 
     var competencyId = parseInt($stateParams.competencyid);
 
@@ -54,7 +52,7 @@ angular.module('mm.addons.competency')
     }
 
     // Get event.
-    fetchCompetency().finally(function() {
+    fetchCompetency().then(function() {
         $mmaCompetency.logCompetencyView(competencyId);
     }).finally(function() {
         $scope.competencyLoaded = true;

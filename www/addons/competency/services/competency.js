@@ -21,7 +21,7 @@ angular.module('mm.addons.competency')
  * @ngdoc service
  * @name $mmaCompetency
  */
-.factory('$mmaCompetency', function($log, $mmSite, $mmSitesManager, $q) {
+.factory('$mmaCompetency', function($log, $mmSite, $mmSitesManager, $q, mmaCompetencyStatusComplete) {
 
     $log = $log.getInstance('$mmaCompetency');
 
@@ -104,9 +104,10 @@ angular.module('mm.addons.competency')
         siteId = siteId || $mmSite.getId();
 
         return $mmSitesManager.getSite(siteId).then(function(site) {
-            return  site.wsAvailable('core_competency_list_course_competencies') &&
-                    site.wsAvailable('tool_lp_data_for_plans_page') &&
-                    self.getLearningPlans(false, siteId);
+            if (site.wsAvailable('core_competency_list_course_competencies') && site.wsAvailable('tool_lp_data_for_plans_page')) {
+                return self.getLearningPlans(false, siteId);
+            }
+            return $q.when(false);
         });
     };
 
@@ -118,22 +119,24 @@ angular.module('mm.addons.competency')
      * @name $mmaCompetency#isPluginForCourseEnabled
      * @param  {Number} courseId Course ID.
      * @param  {String} [siteId] Site ID. If not defined, current site.
-     * @return {Boolean}
+     * @return {Promise} competencies if enabled for the given course, false otherwise.
      */
     self.isPluginForCourseEnabled = function(courseId, siteId) {
-        siteId = siteId || $mmSite.getId();
+        if (!$mmSite.isLoggedIn()) {
+            return $q.when(false);
+        }
 
-        return $mmSitesManager.getSite(siteId).then(function(site) {
-            if (!site.isLoggedIn()) {
+        if(!self.isPluginEnabled(siteId)) {
+            return $q.when(false);
+        }
+
+        return self.getCourseCompetencies(courseId, siteId).then(function(competencies) {
+            if (competencies.competencies.length <= 0) {
                 return false;
             }
-            if(!self.isPluginEnabled(siteId)) {
-                return false;
-            }
-            if (!self.getCourseCompetencies(courseId, siteId)) {
-                return false;
-            }
-            return true;
+            return competencies;
+        }).catch(function() {
+            $q.when(false);
         });
     };
 
@@ -462,12 +465,13 @@ angular.module('mm.addons.competency')
      * @ngdoc method
      * @name $mmaCompetency#logCompetencyInPlanView
      * @param  {Number} planId    ID of the plan.
-     * @param  {Number} competencyId    ID of the competency.
+     * @param  {Number} competencyId  ID of the competency.
+     * @param  {Number} planStatus    Current plan Status to decide what action should be logged.
      * @param  {String} [userId] User ID. If not defined, current user.
      * @param  {String} [siteId] Site ID. If not defined, current site.
      * @return {Promise}  Promise resolved when the WS call is successful.
      */
-    self.logCompetencyInPlanView = function(planId, competencyId, userId, siteId) {
+    self.logCompetencyInPlanView = function(planId, competencyId, planStatus, userId, siteId) {
         if (planId && competencyId) {
             siteId = siteId || $mmSite.getId();
             userId = userId || $mmSite.getUserId();
@@ -478,7 +482,11 @@ angular.module('mm.addons.competency')
                     competencyid: competencyId,
                     userid: userId
                 };
-                return site.write('core_competency_user_competency_viewed_in_plan', params);
+                if (planStatus == mmaCompetencyStatusComplete) {
+                    return site.write('core_competency_user_competency_plan_viewed', params);
+                } else {
+                    return site.write('core_competency_user_competency_viewed_in_plan', params);
+                }
             });
         }
         return $q.reject();

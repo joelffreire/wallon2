@@ -21,16 +21,30 @@ angular.module('mm.addons.competency')
  * @ngdoc controller
  * @name mmaCourseCompetenciesCtrl
  */
-.controller('mmaCourseCompetenciesCtrl', function($scope, $log, $stateParams, $mmaCompetency, $mmUtil, $state, $ionicPlatform, $q) {
-
-    $log = $log.getInstance('mmaCourseCompetenciesCtrl');
+.controller('mmaCourseCompetenciesCtrl', function($scope, $stateParams, $mmaCompetency, $mmUtil, $state, $ionicPlatform, $q,
+        $mmUser, $mmSite) {
 
     var courseId = parseInt($stateParams.courseid);
+        userId = parseInt($stateParams.userid) || false;
 
     // Convenience function that fetches the event and updates the scope.
     function fetchCourseCompetencies(refresh) {
         return $mmaCompetency.getCourseCompetencies(courseId).then(function(competencies) {
             $scope.competencies = competencies;
+
+            if (userId && userId != $mmSite.getUserId()) {
+                $scope.userId = userId;
+
+                // Get the user profile to retrieve the user image.
+                $mmUser.getProfile(userId, undefined, true).then(function(user) {
+                    if (typeof $scope.profileLink == 'undefined') {
+                        $scope.profileLink = user.profileimageurl || true;
+                    }
+                }).catch(function() {
+                    // Couldn't retrieve the image, use a default icon.
+                    $scope.profileLink = true;
+                });
+            }
         }, function(message) {
             if (!refresh) {
                 // Some call failed, retry without using cache.
@@ -49,9 +63,9 @@ angular.module('mm.addons.competency')
     $scope.gotoCompetency = function(competencyId) {
         if ($ionicPlatform.isTablet()) {
             // Show split view on tablet.
-            $state.go('site.competencies', {cid: courseId, compid: competencyId});
+            $state.go('site.competencies', {cid: courseId, compid: competencyId, uid: userId});
         } else {
-            $state.go('site.competency', {courseid: courseId, competencyid: competencyId});
+            $state.go('site.competency', {courseid: courseId, competencyid: competencyId, userid: userId});
         }
     };
 
@@ -64,8 +78,6 @@ angular.module('mm.addons.competency')
 
     // Get event.
     fetchCourseCompetencies().finally(function() {
-        //$mmaCompetency.logPlanView(courseId);
-    }).finally(function() {
         $scope.competenciesLoaded = true;
     });
 

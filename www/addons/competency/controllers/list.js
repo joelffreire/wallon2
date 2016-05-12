@@ -21,14 +21,29 @@ angular.module('mm.addons.competency')
  * @ngdoc controller
  * @name mmaLearningPlansListCtrl
  */
-.controller('mmaLearningPlansListCtrl', function($scope, $log, $mmaCompetency, $mmUtil, $q) {
+.controller('mmaLearningPlansListCtrl', function($scope, $mmaCompetency, $mmUtil, $q, $stateParams, $mmUser, $mmSite) {
 
-    $log = $log.getInstance('mmaLearningPlansListCtrl');
+    var userId = parseInt($stateParams.userid) || false;
 
     function fetchLearningPlans(refresh) {
 
-        return $mmaCompetency.getLearningPlans().then(function(plans) {
+        return $mmaCompetency.getLearningPlans(userId).then(function(plans) {
             $scope.plans = plans;
+
+            if (userId && userId != $mmSite.getUserId()) {
+                $scope.userId = userId;
+
+                // Get the user profile to retrieve the user image.
+                $mmUser.getProfile(userId, undefined, true).then(function(user) {
+                    if (typeof $scope.profileLink == 'undefined') {
+                        $scope.profileLink = user.profileimageurl || true;
+                    }
+                }).catch(function() {
+                    // Couldn't retrieve the image, use a default icon.
+                    $scope.profileLink = true;
+                });
+            }
+
         }).catch(function(message) {
             if (!refresh) {
                 // Some call failed, retry without using cache.
@@ -46,14 +61,12 @@ angular.module('mm.addons.competency')
 
     // Convenience function to refresh all the data.
     function refreshAllData() {
-        return $mmaCompetency.invalidateLearningPlans().finally(function() {
+        return $mmaCompetency.invalidateLearningPlans(userId).finally(function() {
             return fetchLearningPlans(true);
         });
     }
 
-    fetchLearningPlans().then(function() {
-        //$mmaCompetency.logPageView(currentPage);
-    }).finally(function() {
+    fetchLearningPlans().finally(function() {
         $scope.plansLoaded = true;
     });
 

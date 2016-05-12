@@ -25,12 +25,15 @@ angular.module('mm.addons.competency', [])
 .constant('mmaCompetencyReviewStatusWaitingForReview', 1)
 .constant('mmaCompetencyReviewStatusInReview', 2)
 
-.config(function($stateProvider, $mmSideMenuDelegateProvider, $mmCoursesDelegateProvider, mmaCompetencyPriority,
-    mmaCourseCompetenciesPriority) {
+.config(function($stateProvider, $mmSideMenuDelegateProvider, $mmCoursesDelegateProvider, $mmUserDelegateProvider,
+    mmaCompetencyPriority, mmaCourseCompetenciesPriority) {
 
     $stateProvider
         .state('site.learningplans', {
             url: '/learningplans',
+            params: {
+                userid: null
+            },
             views: {
                 'site': {
                     controller: 'mmaLearningPlansListCtrl',
@@ -57,7 +60,8 @@ angular.module('mm.addons.competency', [])
             params: {
                 pid: null,
                 cid: null,
-                compid: null
+                compid: null,
+                uid: null
             },
             views: {
                 'site': {
@@ -72,7 +76,8 @@ angular.module('mm.addons.competency', [])
             params: {
                 planid: null,
                 courseid: null,
-                competencyid: null
+                competencyid: null,
+                userid: null
             },
             views: {
                 'site': {
@@ -85,7 +90,8 @@ angular.module('mm.addons.competency', [])
         .state('site.coursecompetencies', {
             url: '/coursecompetencies',
             params: {
-                courseid: null
+                courseid: null,
+                userid: null
             },
             views: {
                 'site': {
@@ -115,4 +121,8 @@ angular.module('mm.addons.competency', [])
     // Register courses handler.
     $mmCoursesDelegateProvider.registerNavHandler('mmaCompetency', '$mmaCompetencyHandlers.coursesNav',
         mmaCourseCompetenciesPriority);
+
+    // Register user profile addons.
+    $mmUserDelegateProvider.registerProfileHandler('mmaCompetency:learningPlan', '$mmaCompetencyHandlers.learningPlan',
+        mmaCompetencyPriority);
 });

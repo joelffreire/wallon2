@@ -68,8 +68,8 @@ angular.module('mm.addons.mod_certificate')
     // Convenience function to refresh all the data.
     function refreshAllData() {
         var p1 = $mmaModCertificate.invalidateCertificate(courseid),
-            p2 = certificate ? $mmaModCertificate.invalidateIssuedCertificates(certificate.id) : $q.when();
-            p3 = $mmaModCertificate.invalidateDownloadedCertificates(module.id);
+            p2 = certificate.requiredtimenotmet ? $mmaModCertificate.invalidateIssuedCertificates(certificate.id) : $q.when();
+            p3 = certificate.requiredtimenotmet ? $mmaModCertificate.invalidateDownloadedCertificates(module.id) : $q.when();
 
         return $q.all([p1, p2, p3]).finally(function() {
             return fetchCertificate(true);

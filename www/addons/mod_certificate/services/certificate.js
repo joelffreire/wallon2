@@ -200,8 +200,7 @@ angular.module('mm.addons.mod_certificate')
         var siteId = $mmSite.getId(),
             revision = 0,
             timeMod = issuedCertificate.timecreated,
-            files = [{fileurl: issuedCertificate.fileurl, filename: issuedCertificate.filename}];
-
+            files = [{fileurl: issuedCertificate.fileurl, filename: issuedCertificate.filename, timemodified: timeMod}];
         if ($mmFS.isAvailable()) {
             // The file system is available.
             promise = $mmFilepool.downloadPackage(siteId, files, mmaModCertificateComponent, moduleId, revision, timeMod).then(function() {
@@ -209,7 +208,7 @@ angular.module('mm.addons.mod_certificate')
             });
         } else {
             // We use the live URL.
-            promise = $q.when($mmSite.fixPluginfileURL(url));
+            promise = $q.when($mmSite.fixPluginfileURL(issuedCertificate.fileurl));
         }
 
         return promise.then(function(localUrl) {

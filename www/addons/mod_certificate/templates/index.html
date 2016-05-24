@@ -8,7 +8,7 @@
             <div class="card" ng-if="issues.length > 0">
                 <div class="item item-divider">{{ 'mma.mod_certificate.summaryofattempts' | translate }}</div>
                 <div class="item" ng-repeat="issue in issues">
-                    <p class="item-heading">{{ issue.timecreated * 1000 | mmFormatDate:"LLL" }}</p>
+                    <p class="item-heading">{{ issue.timecreated * 1000 | mmFormatDate:"dfmediumdate" }}</p>
                     <p ng-if="issue.grade">{{ issue.grade }}</p>
                 </div>
             </div>

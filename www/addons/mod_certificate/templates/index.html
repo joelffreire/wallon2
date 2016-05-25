@@ -13,7 +13,7 @@
                 </div>
             </div>
 
-            <button ng-if="!certificate.requiredtimenotmet && issues.length > 0" ng-click="downloadCertificate()" class="button button-block">
+            <button ng-if="!certificate.requiredtimenotmet && issues.length > 0" ng-click="openCertificate()" class="button button-block">
                 <i class="icon ion-download"></i> {{ 'mma.mod_certificate.getcertificate' | translate }}
             </button>
 

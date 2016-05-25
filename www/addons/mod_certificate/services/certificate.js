@@ -31,10 +31,10 @@ angular.module('mm.addons.mod_certificate')
      * @ngdoc method
      * @name $mmaModCertificate#getCertificate
      * @param {Number} courseId Course ID.
-     * @param {Number} cmid     Course module ID.
+     * @param {Number} cmId     Course module ID.
      * @return {Promise}        Promise resolved when the Certificate is retrieved.
      */
-    self.getCertificate = function(courseId, cmid) {
+    self.getCertificate = function(courseId, cmId) {
         var params = {
                 courseids: [courseId]
             },
@@ -46,7 +46,7 @@ angular.module('mm.addons.mod_certificate')
             if (response.certificates) {
                 var currentCertificate;
                 angular.forEach(response.certificates, function(certificate) {
-                    if (certificate.coursemodule == cmid) {
+                    if (certificate.coursemodule == cmId) {
                         currentCertificate = certificate;
                     }
                 });
@@ -190,12 +190,12 @@ angular.module('mm.addons.mod_certificate')
      *
      * @module mm.addons.mod_certificate
      * @ngdoc method
-     * @name $mmaModCertificate#downloadCertificate
+     * @name $mmaModCertificate#openCertificate
      * @param {Object} issuedCertificate Issued certificate object.
      * @param {Number} moduleId Module id.
      * @return {Promise}  Promise resolved when the WS call is successful.
      */
-    self.downloadCertificate = function(issuedCertificate, moduleId) {
+    self.openCertificate = function(issuedCertificate, moduleId) {
 
         var siteId = $mmSite.getId(),
             revision = 0,

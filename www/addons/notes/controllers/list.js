@@ -28,10 +28,22 @@ angular.module('mm.addons.notes')
 
     $scope.courseid = courseid;
     $scope.type = type;
+    $scope.notes = [];
+    $scope.data = {
+        showDelete: false
+    };
 
     $translate('mma.notes.' + type + 'notes').then(function(string) {
         $scope.title = string;
     });
+
+    $scope.toggleDelete = function() {
+        $scope.data.showDelete = !$scope.data.showDelete;
+    };
+
+    $scope.deleteNote = function(id) {
+
+    };
 
     function fetchNotes(refresh) {
         return $mmaNotes.getNotes(courseid, refresh).then(function(notes) {

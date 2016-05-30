@@ -1,13 +1,17 @@
 <ion-view>
     <ion-nav-title>{{ title }}</ion-nav-title>
-
+    <ion-nav-buttons side="secondary">
+      <button class="button button-icon ion-edit" ng-click="toggleDelete()" ng-show='notes.length > 0'></button>
+    </ion-nav-buttons>
     <ion-content mm-state-class>
         <ion-refresher pulling-text="{{ 'mm.core.pulltorefresh' | translate }}" ng-if="notesLoaded"
                        on-refresh="refreshNotes()">
         </ion-refresher>
         <mm-loading hide-until="notesLoaded">
             <div class="list">
-                <article class="card" ng-repeat="note in notes">
+                <ion-list ng-repeat="note in notes" show-delete='data.showDelete'>
+                     <ion-item class="card item item-remove-animate">
+                        <ion-delete-button class="ion-minus-circled" ng-click='deleteNote(note.id)'></ion-delete-button>
                         <div class="item item-avatar">
                             <img ng-if="note.userprofileimageurl" ng-src="{{note.userprofileimageurl}}" mm-external-content mm-user-link courseid="{{courseid}}" userid="{{note.userid}}" alt="{{ 'mm.core.pictureof' | translate:{$a: note.userfullname} }}" role="presentation">
                             <img ng-if="!note.userprofileimageurl" src="img/user-avatar.png" alt="{{ 'mm.core.pictureof' | translate:{$a: note.userfullname} }}" role="presentation">
@@ -17,7 +21,8 @@
                         <div class="item item-body">
                             <p><mm-format-text watch="true" clean="true">{{note.content}}</mm-format-text></p>
                         </div>
-                </article>
+                    </ion-item>
+                </ion-list>
                 <div ng-if="notes.length == 0" class="item item-text-wrap">{{ 'mma.notes.nonotes' | translate }}</div>
             </div>
         </mm-loading>

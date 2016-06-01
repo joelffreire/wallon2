@@ -29,7 +29,7 @@ angular.module('mm.addons.mod_certificate', [])
         views: {
             'site': {
                 controller: 'mmaModCertificateIndexCtrl',
-                templateUrl: 'addons/mod_certificate/templates/index.html'
+                templateUrl: 'addons/mod/certificate/templates/index.html'
             }
         }
     });

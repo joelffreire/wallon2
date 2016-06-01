@@ -53,7 +53,7 @@ angular.module('mm.addons.mod_certificate')
         self.getController = function(module, courseid) {
             return function($scope) {
                 $scope.title = module.name;
-                $scope.icon = 'addons/mod_certificate/icon.gif'
+                $scope.icon = 'addons/mod/certificate/icon.gif'
                 $scope.class = 'mma-mod_certificate-handler';
                 $scope.action = function() {
                     $state.go('site.mod_certificate', {module: module, courseid: courseid});
